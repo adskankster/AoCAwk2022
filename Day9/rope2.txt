@@ -1,0 +1,117 @@
+BEGIN {
+	grid["0,0"] = 1
+
+	for (p = 0; p < 10; p++) {
+		points[p]["x"] = 0
+		points[p]["y"] = 0
+	}
+}
+
+/^U/ {
+
+	for (u = 1; u <= $2; u++) {
+		#printf("%s%s - %s%s UP => ", head["x"], head["y"], tail["x"], tail["y"])
+		points[0]["y"]++
+		for (u2 = 0; u2 < 9; u2++) {
+			if (points[u2]["x"] > points[u2+1]["x"]) npmU(u2, u2 + 1)
+			if (points[u2]["y"] > points[u2+1]["y"]) npmR(u2, u2 + 1)
+			if (points[u2]["x"] < points[u2+1]["x"]) npmD(u2, u2 + 1)
+			if (points[u2]["y"] < points[u2+1]["y"]) npmL(u2, u2 + 1)
+		}
+		#print head["x"] head["y"] " - " tail["x"] tail["y"]
+		
+		markGrid()
+	}
+}
+
+/^R/ {
+
+	for (r = 1; r <= $2; r++) {
+		#printf("%s%s - %s%s RIGHT => ", head["x"], head["y"], tail["x"], tail["y"])
+		points[0]["x"]++
+		for (u2 = 0; u2 < 9; u2++) {
+			if (points[u2]["x"] > points[u2+1]["x"]) npmU(u2, u2 + 1)
+			if (points[u2]["y"] > points[u2+1]["y"]) npmR(u2, u2 + 1)
+			if (points[u2]["x"] < points[u2+1]["x"]) npmD(u2, u2 + 1)
+			if (points[u2]["y"] < points[u2+1]["y"]) npmL(u2, u2 + 1)
+		}
+		#print head["x"] head["y"] " - " tail["x"] tail["y"]
+		markGrid()
+	}
+}
+
+/^L/ {
+
+	for (l = 1; l <= $2; l++) {
+		#printf("%s%s - %s%s LEFT => ", head["x"], head["y"], tail["x"], tail["y"])
+		points[0]["x"]--
+		for (u2 = 0; u2 < 9; u2++) {
+			if (points[u2]["x"] > points[u2+1]["x"]) npmU(u2, u2 + 1)
+			if (points[u2]["y"] > points[u2+1]["y"]) npmR(u2, u2 + 1)
+			if (points[u2]["x"] < points[u2+1]["x"]) npmD(u2, u2 + 1)
+			if (points[u2]["y"] < points[u2+1]["y"]) npmL(u2, u2 + 1)
+		}
+		#print head["x"] head["y"] " - " tail["x"] tail["y"]
+		
+		markGrid()
+	}
+}
+
+/^D/ {
+
+	for (d = 1; d <= $2; d++) {
+		#printf("%s%s - %s%s DOWN => ", head["x"], head["y"], tail["x"], tail["y"])
+		points[0]["y"]--
+		for (u2 = 0; u2 < 9; u2++) {
+			if (points[u2]["x"] > points[u2+1]["x"]) npmU(u2, u2 + 1)
+			if (points[u2]["y"] > points[u2+1]["y"]) npmR(u2, u2 + 1)
+			if (points[u2]["x"] < points[u2+1]["x"]) npmD(u2, u2 + 1)
+			if (points[u2]["y"] < points[u2+1]["y"]) npmL(u2, u2 + 1)
+		}
+		#print head["x"] head["y"] " - " tail["x"] tail["y"]
+		
+		markGrid()
+	}
+}
+
+
+END {
+	print length(grid)
+}
+
+function npmU(point, nextPoint) {
+	if (points[point]["y"] - points[nextPoint]["y"] > 1) {
+		points[nextPoint]["y"]++
+		points[nextPoint]["x"] = points[point]["x"]
+	}
+}
+
+function npmD(point, nextPoint) {
+	if (points[nextPoint]["y"] - points[point]["y"] > 1) {
+		points[nextPoint]["y"]--
+		points[nextPoint]["x"] = points[point]["x"]
+	}
+}
+
+function npmR(point, nextPoint) {
+	if (points[point]["x"] - points[nextPoint]["x"] > 1) {
+		points[nextPoint]["x"]++
+		points[nextPoint]["y"] = points[point]["y"]
+	}
+}
+
+function npmL(point, nextPoint) {
+	if (points[nextPoint]["x"] - points[point]["x"] > 1) {
+		points[nextPoint]["x"]--
+		points[nextPoint]["y"]  = points[point]["y"]
+	}
+}
+
+function markGrid() {
+	gridRef = sprintf("%i,%i", points[9]["x"], points[9]["y"])
+	grid[gridRef] = 1
+	#for (p = 0; p < 10; p++) {
+	#	printf("%s,%s - ", points[p]["x"], points[p]["y"])
+	#}
+	#printf("\r\n")
+}

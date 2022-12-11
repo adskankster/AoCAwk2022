@@ -1,0 +1,32 @@
+BEGIN {
+	dirPointer[0] = ""
+}
+
+/\$ ls/ { }
+
+/\$ dir/ { }
+
+/^\$ cd \.\./ {
+	parent = dirPointer[length(dirPointer)]
+	dirs[parent] += dirs[curDir]
+	curDir = parent
+	delete dirPointer[length(dirPointer)]
+}
+
+/^\$ cd [^.]/ {
+	dirPointer[length(dirPointer) + 1] = curDir
+	curDir = curDir $3
+}
+
+/^[0-9]+/ {
+	dirs[curDir] += strtonum($1)
+}
+
+END {
+	for (dir in dirs) {
+		if (dirs[dir] <= 100000) {
+			totalSize += dirs[dir]
+		}
+	}
+	print totalSize
+}

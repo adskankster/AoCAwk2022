@@ -1,0 +1,66 @@
+BEGIN {
+	FS = "\n"; RS = ""
+	visible = 0
+}
+
+/^.+$/ {
+	#Outer trees
+	visible += length($1) + length($NF)
+	visible += (NF - 2) * 2
+	
+	for (ri = 2; ri < NF; ri++) {
+		for (ci = 2; ci < length($ri); ci++) {
+			curTree = strtonum(substr($ri, ci, 1))
+			
+			bc = checkColumn(ri, ci, curTree)
+			br = checkRow(ri, ci, curTree)
+			
+			if (bc + br < 4) visible++
+		}
+	}
+}
+
+END {
+	print visible
+}
+
+
+function checkRow(row, col, tree) {
+	v = 0
+
+	for (c = 1; c < col; c++) {
+		t = strtonum(substr($row, c, 1))
+		if (t >= tree) {
+			v++; break
+		}
+	}
+	
+	for (c = col + 1; c <= length($row); c++) {
+		t = strtonum(substr($row, c, 1))
+		if (t >= tree) {
+			v++; break
+		}
+	}
+	
+	return v
+}
+
+function checkColumn(row, col, tree) {
+	v = 0
+	
+	for (r = 1; r < row; r++) {
+		t = strtonum(substr($r, col, 1))
+		if (t >= tree) {
+			v++; break
+		}
+	}
+	
+	for (r = row + 1; r <= NF; r++) {
+		t = strtonum(substr($r, col, 1))
+		if (t >= tree) {
+			v++; break
+		}
+	}
+	
+	return v
+}

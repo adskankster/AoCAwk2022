@@ -1,0 +1,40 @@
+BEGIN {
+	dirPointer[0] = ""
+}
+
+/\$ ls/ { }
+
+/\$ dir/ { }
+
+/^\$ cd \.\./ {
+	parent = dirPointer[length(dirPointer)]
+	dirs[parent] += dirs[curDir]
+	curDir = parent
+	delete dirPointer[length(dirPointer)]
+}
+
+/^\$ cd [^.]/ {
+	dirPointer[length(dirPointer) + 1] = curDir
+	curDir = curDir $3
+}
+
+/^[0-9]+/ {1
+	dirs[curDir] += strtonum($1)
+}
+
+END {
+	parent = dirPointer[length(dirPointer)]
+	dirs[parent] += dirs[curDir]
+	
+	n = asort(dirs, adirs)
+	
+	empty = 70000000 - dirs["/"]
+	required = (30000000 - empty)
+	
+	for (i = 1; i <= n; i++) {
+		if (adirs[i] > required) {
+			print adirs[i]
+			break;
+		}
+	}
+}

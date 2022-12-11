@@ -1,0 +1,65 @@
+BEGIN {
+	FS = "\n"; RS = ""
+	visible = 0
+}
+
+/^.+$/ {
+	for (ri = 2; ri < NF; ri++) {
+		for (ci = 2; ci < length($ri); ci++) {
+			curTree = strtonum(substr($ri, ci, 1))
+			
+			bc = checkColumn(ri, ci, curTree)
+			br = checkRow(ri, ci, curTree)
+			
+			v = bc * br	
+			if (v > visible) visible = v
+		}
+	}
+}
+
+END {
+	print visible
+}
+
+
+function checkRow(row, col, tree) {
+	v1 = col - 1
+	v2 = length($row) - col
+
+	for (c = col - 1; c >= 1; c--) {
+		t = strtonum(substr($row, c, 1))
+		if (t >= tree) {
+			v1 = col - c; break
+		}
+	}
+	
+	for (c = col + 1; c <= length($row); c++) {
+		t = strtonum(substr($row, c, 1))
+		if (t >= tree) {
+			v2 = c - col; break
+		}
+	}
+
+	return v1 * v2
+}
+
+function checkColumn(row, col, tree) {
+	v1 = row - 1
+	v2 = NF - row
+	
+	for (r = row - 1; r >= 1; r--) {
+		t = strtonum(substr($r, col, 1))
+		if (t >= tree) {
+			v1 = row - r; break
+		}
+	}
+	
+	for (r = row + 1; r <= NF; r++) {
+		t = strtonum(substr($r, col, 1))
+		if (t >= tree) {
+			v2 = r - row; break
+		}
+	}
+
+	return v1 * v2
+}
