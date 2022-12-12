@@ -32,35 +32,35 @@ BEGIN {
 
 END {
 	for (round = 1; round <= 20; round++) {
-		#printf("Round %i\r\n", round)
+		printf("Round %i\r\n", round)
 		for (m = 0; m < length(monkeys); m++) {
-			#printf("\tMonkey %i\r\n", m)
+			printf("\tMonkey %i\r\n", m)
 			for (i = 5; i <= length(monkeys[m]); i++) {
-				#printf("\t\t%i\r\n", monkeys[m][i])
+				printf("\t\t%i\t", monkeys[m][i])
 				n = split(monkeys[m][1], f, ",")
 				if (f[2] == "old") {
 					factor = monkeys[m][i]
 				} else {
 					factor = strtonum(f[2])
 				}
-				#printf("\t\t factor (%s,%s) =%i ", f[1], f[2], factor)
+				printf(" %s %s ", f[1], f[2], factor)
 				
 				if (f[1] == "+") {
 					new = monkeys[m][i] + factor
 				} else {
 					new = monkeys[m][i] * factor
 				}
-				#new -= 1 #int(new / 3)
-				#printf("   new=%i ", new)
+				#new = int(new / 2)
+				printf("   new=%i ", new)
 				
 				if (new % monkeys[m][2] == 0) {
 					newMonkey = monkeys[m][3]
 				} else {
 					newMonkey = monkeys[m][4]
 				}
-				#printf("   newMonkey=%i\r\n", newMonkey)
+				printf(" newMonkey=%i\r\n", newMonkey)
 				
-				monkeys[newMonkey][length(monkeys[newMonkey]) + 1] = new - round
+				monkeys[newMonkey][length(monkeys[newMonkey]) + 1] = new
 
 				monkeyTotals[m]++
 			}

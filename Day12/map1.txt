@@ -1,0 +1,157 @@
+BEGIN {
+	FS = "\n"; RS = ""
+	heightMap = "abcdefghijklmnopqrstuvwxyz"
+}
+
+/.+/ {
+	maxRow = NF
+	maxCol = length $1
+
+	for (y = 1; y <= maxRow; y++) {
+		for (x = 1; x <= maxCol; x++) {
+			value = substr($y, x, 1)
+			if (value == "S") {
+				startPoint = setRef(x, y)
+				value = "a"
+			}
+			if (value == "E") {
+				destination = setRef(x, y)
+				value = "z"
+			}
+			map[x][y][1] = index(heightMap, value)
+			map[x][y][2] = ""
+			map[x][y][3] = -1
+			map[x][y][3] = FALSE
+		}
+	}		
+}
+
+END {
+	markMap()
+	
+	foundDest = FALSE
+	
+	g = 1
+	clPointer = 1
+	checkList[clPointer] = startPoint
+	
+	while (clPointer >= length(checkList)) {
+		ref = getRef(checkList[clPointer++])
+		checkNorth(ref[1], ref[2])
+		checkEast(ref[1], ref[2])
+		checkSouth(ref[1], ref[2])
+		checkWest(ref[1], ref[2])
+		
+		map[ref[1]][ref[2]][4] = TRUE
+	}
+}
+
+function markMap() {
+	for (y = 1; y <= maxRow; y++) {
+		for (x = 1; x <= maxCol; x++) {
+			if (canMove(x, y, x, y+1) map[x][y][1] += "N"
+			if (canMove(x, y, x+1, y) map[x][y][1] += "E"
+			if (canMove(x, y, x, y-1) map[x][y][1] += "S"
+			if (canMove(x, y, x-1, y) map[x][y][1] += "W"
+		}
+	}
+}
+
+function checkNorth(x, y) {
+	if (index(map[x][y][2], "N") > 0) {
+		if (checkPoint(x, y+1)) {
+			map[x][y+1][4] = setRef(x, y)
+		}
+	}
+}
+
+function checkEast(x, y) {
+	if (index(map[x][y][2], "E") > 0) {
+		if (checkPoint(x+1, y)) {
+			map[x+1][y][4] = setRef(x, y)
+		}
+	}
+}
+
+function checkSouth(x, y) {
+	if (index(map[x][y][2], "S") > 0) {
+		if (checkPoint(x, y-1)) {
+			map[x][y-1][4] = setRef(x, y)
+		}
+	}
+}
+
+function checkWest(x, y) {
+	if (index(map[x][y][2], "W") > 0) {
+		if (checkPoint(x-1, y)) {
+			map[x-1][y][4] = setRef(x, y)
+		}
+	}
+}
+
+function checkPoint(x, y) {
+	if (map[x][y][4] == TRUE) return FALSE
+	
+	if (isDestination(x, y)) {
+		foundDest = TRUE
+		# TODO TracePath
+		return FALSE
+	}
+
+	newF = (g + 1) + calcH(x, y)
+
+	if (map[x][y][3] < 0) {
+		map[x][y][3] = newF
+		checkList[length(checkList) + 1] = setRef(x, y)
+		return TRUE
+	} else {
+		if (map[x][y][3] > newF) {
+			map[x][y][3] = newF
+			return TRUE
+		}
+	}
+	return FALSE
+}
+
+function isDestination(x, y) {
+	destRef = getRef(destination)
+	return (destRef[1] == x && destRef[20] == y)
+}
+
+function canMove(sx, sy, dx, dy) {
+	if (!isValid(dx, dy)) return FALSE
+	if (map[dx][dy] - map[sx][sy] > 1) return FALSE
+	return TRUE
+}
+
+function isValid(x, y) {
+	return (x > 0 && x <= maxCol) && 
+		   (y > 0 && y <= maxRow)
+}
+
+function calcH(x, y) {
+	destRef = getRef(destination)
+	return getDistance(x, y, destRef[1], destRef[2])
+}
+
+function getDistance(sx, sy, dx, dy) {
+	dx = abs(sx - dx)
+	dy = abs(sy - dy)
+	return dx + dy
+}
+
+function getRef(point) {
+	n = split(point, gridRef, ",")
+	if (n != 2) print "INVALID GRID REF " point
+	
+	return gridRef
+}
+
+function setRef(x, y) {
+	return sprintf("%i,%i", x, y)
+}
+
+function abs(value) {
+	if (value < 0) return value * -1
+	return value
+}
