@@ -7,6 +7,8 @@ BEGIN {
 	maxRow = NF
 	maxCol = length $1
 
+	printf("loading map.")
+	
 	for (y = 1; y <= maxRow; y++) {
 		for (x = 1; x <= maxCol; x++) {
 			value = substr($y, x, 1)
@@ -24,7 +26,10 @@ BEGIN {
 			map[x][y][4] = FALSE
 			map[x][y][4] = setRef(x,y)
 		}
-	}		
+		
+		printf(".")
+	}
+	print ".loaded"
 }
 
 END {
@@ -48,6 +53,7 @@ END {
 }
 
 function tracePath() {
+	print "TRACING..."
 	steps = 0
 
 	split(destination, destRef, ",")
@@ -62,6 +68,9 @@ function tracePath() {
 }
 
 function markMap() {
+
+	printf("marking map..")
+	
 	for (y = 1; y <= maxRow; y++) {
 		for (x = 1; x <= maxCol; x++) {
 			if (canMove(x, y, x, y+1)) map[x][y][1] = sprintf("N%s", map[x][y][1])
@@ -69,7 +78,9 @@ function markMap() {
 			if (canMove(x, y, x, y-1)) map[x][y][1] = sprintf("S%s", map[x][y][1])
 			if (canMove(x, y, x-1, y)) map[x][y][1] = sprintf("W%s", map[x][y][1])
 		}
+		printf(".")
 	}
+	print ".marked"
 }
 
 function checkNorth(x, y) {
@@ -108,9 +119,10 @@ function checkPoint(x, y) {
 	if (map[x][y][4] == TRUE) return FALSE
 	
 	if (isDestination(x, y)) {
+		print "FOUND DESTINATION"
 		foundDest = TRUE
-		# TODO TracePath
-		return FALSE
+		tracePath()
+		exit
 	}
 
 	newF = (g + 1) + calcH(x, y)
