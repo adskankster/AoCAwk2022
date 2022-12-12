@@ -21,7 +21,8 @@ BEGIN {
 			map[x][y][1] = index(heightMap, value)
 			map[x][y][2] = ""
 			map[x][y][3] = -1
-			map[x][y][3] = FALSE
+			map[x][y][4] = FALSE
+			map[x][y][4] = setRef(x,y)
 		}
 	}		
 }
@@ -36,7 +37,7 @@ END {
 	checkList[clPointer] = startPoint
 	
 	while (clPointer >= length(checkList)) {
-		ref = getRef(checkList[clPointer++])
+		split(checkList[clPointer++], ref, ",")
 		checkNorth(ref[1], ref[2])
 		checkEast(ref[1], ref[2])
 		checkSouth(ref[1], ref[2])
@@ -46,13 +47,27 @@ END {
 	}
 }
 
+function tracePath() {
+	steps = 0
+
+	split(destination, destRef, ",")
+	curX = destRef[1]; curY = destRef[2]
+	
+	while (!isStartPoint(curX, curY)) {
+		steps++
+		split(map[curX][curY][5], curRef, ",")
+	}
+	
+	print "Total Steps = " steps
+}
+
 function markMap() {
 	for (y = 1; y <= maxRow; y++) {
 		for (x = 1; x <= maxCol; x++) {
-			if (canMove(x, y, x, y+1) map[x][y][1] += "N"
-			if (canMove(x, y, x+1, y) map[x][y][1] += "E"
-			if (canMove(x, y, x, y-1) map[x][y][1] += "S"
-			if (canMove(x, y, x-1, y) map[x][y][1] += "W"
+			if (canMove(x, y, x, y+1)) map[x][y][1] = sprintf("N%s", map[x][y][1])
+			if (canMove(x, y, x+1, y)) map[x][y][1] = sprintf("E%s", map[x][y][1])
+			if (canMove(x, y, x, y-1)) map[x][y][1] = sprintf("S%s", map[x][y][1])
+			if (canMove(x, y, x-1, y)) map[x][y][1] = sprintf("W%s", map[x][y][1])
 		}
 	}
 }
@@ -60,7 +75,7 @@ function markMap() {
 function checkNorth(x, y) {
 	if (index(map[x][y][2], "N") > 0) {
 		if (checkPoint(x, y+1)) {
-			map[x][y+1][4] = setRef(x, y)
+			map[x][y+1][5] = setRef(x, y)
 		}
 	}
 }
@@ -68,7 +83,7 @@ function checkNorth(x, y) {
 function checkEast(x, y) {
 	if (index(map[x][y][2], "E") > 0) {
 		if (checkPoint(x+1, y)) {
-			map[x+1][y][4] = setRef(x, y)
+			map[x+1][y][5] = setRef(x, y)
 		}
 	}
 }
@@ -76,7 +91,7 @@ function checkEast(x, y) {
 function checkSouth(x, y) {
 	if (index(map[x][y][2], "S") > 0) {
 		if (checkPoint(x, y-1)) {
-			map[x][y-1][4] = setRef(x, y)
+			map[x][y-1][5] = setRef(x, y)
 		}
 	}
 }
@@ -84,7 +99,7 @@ function checkSouth(x, y) {
 function checkWest(x, y) {
 	if (index(map[x][y][2], "W") > 0) {
 		if (checkPoint(x-1, y)) {
-			map[x-1][y][4] = setRef(x, y)
+			map[x-1][y][5] = setRef(x, y)
 		}
 	}
 }
@@ -114,13 +129,20 @@ function checkPoint(x, y) {
 }
 
 function isDestination(x, y) {
-	destRef = getRef(destination)
+	split(destination, destRef, ",")
 	return (destRef[1] == x && destRef[20] == y)
 }
 
+function isStartPoint(x, y) {
+	split(startPoint, gridRef, ",")
+	return (startRef[1] == x && startRef[20] == y)
+}
+
+
+
 function canMove(sx, sy, dx, dy) {
 	if (!isValid(dx, dy)) return FALSE
-	if (map[dx][dy] - map[sx][sy] > 1) return FALSE
+	if (map[dx][dy][1] - map[sx][sy][1] > 1) return FALSE
 	return TRUE
 }
 
@@ -130,7 +152,7 @@ function isValid(x, y) {
 }
 
 function calcH(x, y) {
-	destRef = getRef(destination)
+	split(destination, destRef, ",")
 	return getDistance(x, y, destRef[1], destRef[2])
 }
 
@@ -138,13 +160,6 @@ function getDistance(sx, sy, dx, dy) {
 	dx = abs(sx - dx)
 	dy = abs(sy - dy)
 	return dx + dy
-}
-
-function getRef(point) {
-	n = split(point, gridRef, ",")
-	if (n != 2) print "INVALID GRID REF " point
-	
-	return gridRef
 }
 
 function setRef(x, y) {
