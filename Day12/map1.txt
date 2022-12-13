@@ -1,17 +1,19 @@
 BEGIN {
 	FS = "\n"; RS = ""
 	heightMap = "abcdefghijklmnopqrstuvwxyz"
+	
+	TRUE = 1
+	FALSE = 0
 }
 
 /.+/ {
 	maxRow = NF
-	maxCol = length $1
+	maxCol = length($1)
 
-	printf("loading map.")
-	
 	for (y = 1; y <= maxRow; y++) {
 		for (x = 1; x <= maxCol; x++) {
 			value = substr($y, x, 1)
+			
 			if (value == "S") {
 				startPoint = setRef(x, y)
 				value = "a"
@@ -20,16 +22,18 @@ BEGIN {
 				destination = setRef(x, y)
 				value = "z"
 			}
+			
 			map[x][y][1] = index(heightMap, value)
 			map[x][y][2] = ""
 			map[x][y][3] = -1
 			map[x][y][4] = FALSE
-			map[x][y][4] = setRef(x,y)
+			map[x][y][5] = setRef(x,y)
+			map[x][y][6] = 0
 		}
-		
-		printf(".")
 	}
-	print ".loaded"
+	printf("loaded map (%ix%i).", maxCol, maxRow)
+	
+	printf("Start %s, End %s\r\n", startPoint, destination)
 }
 
 END {
@@ -37,31 +41,34 @@ END {
 	
 	foundDest = FALSE
 	
-	g = 1
 	clPointer = 1
 	checkList[clPointer] = startPoint
 	
-	while (clPointer >= length(checkList)) {
+	while (clPointer <= length(checkList)) {
+		#printf ("checkPoint %i / %i", clPointer, length(checkList))
+		
 		split(checkList[clPointer++], ref, ",")
-		checkNorth(ref[1], ref[2])
-		checkEast(ref[1], ref[2])
-		checkSouth(ref[1], ref[2])
-		checkWest(ref[1], ref[2])
+		
+		checkNorth(ref[1], ref[2], map[ref[1]][ref[2]][4])
+		checkEast(ref[1], ref[2], map[ref[1]][ref[2]][4])
+		checkSouth(ref[1], ref[2], map[ref[1]][ref[2]][4])
+		checkWest(ref[1], ref[2], map[ref[1]][ref[2]][4])
 		
 		map[ref[1]][ref[2]][4] = TRUE
 	}
 }
 
 function tracePath() {
-	print "TRACING..."
+	print "tracing"
 	steps = 0
 
 	split(destination, destRef, ",")
 	curX = destRef[1]; curY = destRef[2]
 	
-	while (!isStartPoint(curX, curY)) {
+	while (isStartPoint(curX, curY) != TRUE) {
 		steps++
 		split(map[curX][curY][5], curRef, ",")
+		curX = curRef[1]; curY = curRef[2]
 	}
 	
 	print "Total Steps = " steps
@@ -73,67 +80,84 @@ function markMap() {
 	
 	for (y = 1; y <= maxRow; y++) {
 		for (x = 1; x <= maxCol; x++) {
-			if (canMove(x, y, x, y+1)) map[x][y][1] = sprintf("N%s", map[x][y][1])
-			if (canMove(x, y, x+1, y)) map[x][y][1] = sprintf("E%s", map[x][y][1])
-			if (canMove(x, y, x, y-1)) map[x][y][1] = sprintf("S%s", map[x][y][1])
-			if (canMove(x, y, x-1, y)) map[x][y][1] = sprintf("W%s", map[x][y][1])
+			if (canMove(x, y, x, y+1) == TRUE) map[x][y][2] = sprintf("N%s", map[x][y][2])
+			if (canMove(x, y, x+1, y) == TRUE) map[x][y][2] = sprintf("E%s", map[x][y][2])
+			if (canMove(x, y, x, y-1) == TRUE) map[x][y][2] = sprintf("S%s", map[x][y][2])
+			if (canMove(x, y, x-1, y) == TRUE) map[x][y][2] = sprintf("W%s", map[x][y][2])
 		}
-		printf(".")
 	}
 	print ".marked"
 }
 
-function checkNorth(x, y) {
+function checkNorth(x, y, g) {
 	if (index(map[x][y][2], "N") > 0) {
-		if (checkPoint(x, y+1)) {
+		if (checkPoint(x, y+1, g) == TRUE) {
 			map[x][y+1][5] = setRef(x, y)
+			if (foundDest == TRUE) {
+				tracePath()
+				exit
+			}
 		}
 	}
 }
 
-function checkEast(x, y) {
+function checkEast(x, y, g) {
 	if (index(map[x][y][2], "E") > 0) {
-		if (checkPoint(x+1, y)) {
+		if (checkPoint(x+1, y, g) == TRUE) {
 			map[x+1][y][5] = setRef(x, y)
+			if (foundDest == TRUE) {
+				tracePath()
+				exit
+			}
 		}
 	}
 }
 
-function checkSouth(x, y) {
+function checkSouth(x, y, g) {
 	if (index(map[x][y][2], "S") > 0) {
-		if (checkPoint(x, y-1)) {
+		if (checkPoint(x, y-1, g) == TRUE) {
 			map[x][y-1][5] = setRef(x, y)
+			if (foundDest == TRUE) {
+				tracePath()
+				exit
+			}
 		}
 	}
 }
 
-function checkWest(x, y) {
+function checkWest(x, y, g) {
 	if (index(map[x][y][2], "W") > 0) {
-		if (checkPoint(x-1, y)) {
+		if (checkPoint(x-1, y) == TRUE) {
 			map[x-1][y][5] = setRef(x, y)
+			if (foundDest == TRUE) {
+				tracePath()
+				exit
+			}
 		}
 	}
 }
 
-function checkPoint(x, y) {
+function checkPoint(x, y, g) {
 	if (map[x][y][4] == TRUE) return FALSE
-	
-	if (isDestination(x, y)) {
+
+	if (isDestination(x, y) == TRUE) {
 		print "FOUND DESTINATION"
 		foundDest = TRUE
-		tracePath()
-		exit
 	}
 
 	newF = (g + 1) + calcH(x, y)
 
+	#printf("checkDecision(%i, %i) %i - %i\r\n", x, y, map[x][y][3], newF)
+
 	if (map[x][y][3] < 0) {
 		map[x][y][3] = newF
+		map[x][y][6] = g + 1
 		checkList[length(checkList) + 1] = setRef(x, y)
 		return TRUE
 	} else {
 		if (map[x][y][3] > newF) {
 			map[x][y][3] = newF
+			map[x][y][6] = g + 1
 			return TRUE
 		}
 	}
@@ -142,15 +166,21 @@ function checkPoint(x, y) {
 
 function isDestination(x, y) {
 	split(destination, destRef, ",")
-	return (destRef[1] == x && destRef[20] == y)
+	if (destRef[1] == x && destRef[2] == y) {
+		return TRUE
+	} else {
+		return FALSE
+	}
 }
 
 function isStartPoint(x, y) {
-	split(startPoint, gridRef, ",")
-	return (startRef[1] == x && startRef[20] == y)
+	split(startPoint, startRef, ",")
+	if (startRef[1] == x && startRef[2] == y) {
+		return TRUE
+	} else {
+		return FALSE
+	}
 }
-
-
 
 function canMove(sx, sy, dx, dy) {
 	if (!isValid(dx, dy)) return FALSE
@@ -159,8 +189,9 @@ function canMove(sx, sy, dx, dy) {
 }
 
 function isValid(x, y) {
-	return (x > 0 && x <= maxCol) && 
-		   (y > 0 && y <= maxRow)
+	if ((x > 0 && x <= maxCol) && 
+	   (y > 0 && y <= maxRow)) return TRUE
+	return FALSE
 }
 
 function calcH(x, y) {
