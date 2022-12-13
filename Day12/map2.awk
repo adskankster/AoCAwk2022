@@ -39,8 +39,8 @@ BEGIN {
 
 END {
 	markMap()
-	for (a = 1; a < maxCol; a++) {
-		for (b = 1; b < maxRow; b++) {
+	for (a = 1; a <= maxCol; a++) {
+		for (b = 1; b <= maxRow; b++) {
 			foundDest = FALSE
 			
 			if (map[a][b][1] == 1) {
@@ -63,6 +63,8 @@ END {
 					map[ref[1]][ref[2]][4] = TRUE
 				}
 			}
+			
+			delete checkList
 			
 			cleanMap()
 		}
