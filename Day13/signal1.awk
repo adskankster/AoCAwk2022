@@ -16,11 +16,17 @@ END {
 		itemToList(pairs[curPair][1], left)
 		itemToList(pairs[curPair][2], right)
 		
+		PROCINFO["sorted_in"] = "@ind_str_asc"
+		
+		lsi = 1
 		for(l in left) {
+			sortedPairLeft[curPair][lsi++] = l
 			print "left[" l "] = " left[l]
 		}	
 
+		rsi = 1
 		for (r in right) {
+			sortedPairRight[curPair][rsi++] = r
 			print "right[" r "] = " right[r]
 		}
 
@@ -40,14 +46,14 @@ function itemToList(item, list) {
 	for (i = 2; i <= length(item); i++) {
 
 		c = substr(item, i, 1)
-		
+
 		switch (c) {
 			case "[":
 				subscr = (subscr "," "1") 
 			break
 			
 			case "]":
-				if (length(list[subscr] == 0)) list[subscr] = ""
+				#if (length(list[subscr] == 0)) list[subscr] = ""
 				ci = lastIndexOf(subscr, ",")
 				if (ci > 0) {
 					subscr = substr(subscr, 1, ci - 1)
