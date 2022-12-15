@@ -1,0 +1,14 @@
+BEGIN {
+	
+}
+
+/^Sensor/ {
+	sensor[NR]["x"] = substr($3, 3, length($3) - 3)
+	sensor[NR]["y"] = substr($4, 3, length($4) - 3)
+	nearbe[NR]["x"] = substr($9, 3, length($9) - 3)
+	nearbe[NR]["y"] = substr($10, 3, length($10) - 2)
+}
+
+END {
+	
+}
