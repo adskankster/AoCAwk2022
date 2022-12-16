@@ -1,5 +1,5 @@
 BEGIN {
-	minX = 0; maxX = 10; minY = 0; maxY = 10
+	minX = 0; maxX = 10; minY = -2; maxY = 10
 }
 
 /^Sensor/ {
@@ -9,43 +9,47 @@ BEGIN {
 	nearbe[NR]["y"] = strtonum(substr($10, 3, length($10) - 2))
 
 	if (sensor[NR]["x"] > maxX) { maxX = sensor[NR]["x"] }
-	if (sensor[NR]["y"] > maxY) maxY = sensor[NR]["y"]
-	if (nearbe[NR]["x"] > maxX) maxX = nearbe[NR]["x"]
-	if (nearbe[NR]["y"] > maxY) maxY = nearbe[NR]["y"]
+	if (sensor[NR]["y"] > maxY) { maxY = sensor[NR]["y"] }
+	if (nearbe[NR]["x"] > maxX) { maxX = nearbe[NR]["x"] }
+	if (nearbe[NR]["y"] > maxY) { maxY = nearbe[NR]["y"] }
 	
-	if (sensor[NR]["x"] < minX) minX = sensor[NR]["x"]
-	if (sensor[NR]["y"] < minY) minY = sensor[NR]["y"]
-	if (nearbe[NR]["x"] < minX) minX = nearbe[NR]["x"]
-	if (nearbe[NR]["y"] < minY) minY = nearbe[NR]["y"]
+	if (sensor[NR]["x"] < minX) { minX = sensor[NR]["x"] }
+	if (sensor[NR]["y"] < minY) { minY = sensor[NR]["y"] }
+	if (nearbe[NR]["x"] < minX) { minX = nearbe[NR]["x"] }
+	if (nearbe[NR]["y"] < minY) { minY = nearbe[NR]["y"] }
 }
 
 END {
-	print minX " " maxX " " minY " " maxY
-	for (cx = minX; cx <= maxX; cx++) {
-		for (cy = minY; cy <= maxY; cy++) {
-			cave[cx][cy] = "."
-		}
-	}
+	#print minX " " maxX " " minY " " maxY
+	#for (cx = minX; cx <= maxX; cx++) {
+	#	for (cy = minY; cy <= maxY; cy++) {
+	#		cave[cx][cy] = 0
+	#	}
+	#}
 
 	for (s = 1; s <= length(sensor); s++) {
-		cave[sensor[s]["x"]][sensor[s]["y"]] = "S"
-		cave[nearbe[s]["x"]][nearbe[s]["y"]] = "B"
+		cave[sensor[s]["x"]][sensor[s]["y"]] = 1
+		cave[nearbe[s]["x"]][nearbe[s]["y"]] = 2
+		
 		distance = getDistance(sensor[s]["x"], sensor[s]["y"], nearbe[s]["x"], nearbe[s]["y"])
 		markRow(sensor[s]["x"], sensor[s]["y"], distance)
 	}
 	
-	for (cx = minX; cx <= maxX; cx++) {
-		for (cy = minY; cy <= maxY; cy++) {
-			printf("%s", cave[cx][cy])
-		}
-		print ""
-	}
+	#for (cy = minY; cy <= maxY; cy++) {
+	#	for (cx = minX; cx <= maxX; cx++) {
+	#		printf("%s", cave[cx][cy])
+	#	}
+	#	print ""
+	#}
+
+	delete sensor
+	delete nearbe
 
 	empty = 0
 	for (c = minX; c <= maxX; c++) {
-		if (cave[c][10] == "#" || 
-			cave[dx][dy] == "S" || 
-			cave[dx][dy] == "B") empty++
+		if (cave[c][10] == 3) empty++
+			#cave[c][10] == 1 || 
+			#cave[c][10] == 2) 
 	}
 	
 	print empty
@@ -53,18 +57,24 @@ END {
 
 function markRow(x, y, d) {
 	for (dy = (y - d); dy <= (y + d); dy++) {
-		for (dx = (x - (y - dy)); dx <= (x + (y - dy)); dx++) {
-			if (cave[dx][dy] == "S" || 
-				cave[dx][dy] == "B") continue
+		if (dy < minY || dy > maxY) continue
+		
+		dd = (d - (y - dy))
+
+		for (dx = (x - dd); dx <= (x + dd); dx++) {
+			if (dx < minX || dx > maxX) continue
+
+			if (cave[dx][dy] == 1 || 
+				cave[dx][dy] == 2) continue
 				
-			cave[dx][dy] = "#"
+			cave[dx][dy] = 3
 		}
 	}
 }
 
-function getDistance(sx, sy, dx, dy) {
-	dx = abs(sx - dx)
-	dy = abs(sy - dy)
+function getDistance(sx, sy, ex, ey) {
+	dx = abs(sx - ex)
+	dy = abs(sy - ey)
 	return dx + dy
 }
 
