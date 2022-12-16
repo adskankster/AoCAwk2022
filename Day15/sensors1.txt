@@ -1,14 +1,74 @@
 BEGIN {
-	
+	minX = 0; maxX = 10; minY = 0; maxY = 10
 }
 
 /^Sensor/ {
-	sensor[NR]["x"] = substr($3, 3, length($3) - 3)
-	sensor[NR]["y"] = substr($4, 3, length($4) - 3)
-	nearbe[NR]["x"] = substr($9, 3, length($9) - 3)
-	nearbe[NR]["y"] = substr($10, 3, length($10) - 2)
+	sensor[NR]["x"] = strtonum(substr($3, 3, length($3) - 3))
+	sensor[NR]["y"] = strtonum(substr($4, 3, length($4) - 3))
+	nearbe[NR]["x"] = strtonum(substr($9, 3, length($9) - 3))
+	nearbe[NR]["y"] = strtonum(substr($10, 3, length($10) - 2))
+
+	if (sensor[NR]["x"] > maxX) { maxX = sensor[NR]["x"] }
+	if (sensor[NR]["y"] > maxY) maxY = sensor[NR]["y"]
+	if (nearbe[NR]["x"] > maxX) maxX = nearbe[NR]["x"]
+	if (nearbe[NR]["y"] > maxY) maxY = nearbe[NR]["y"]
+	
+	if (sensor[NR]["x"] < minX) minX = sensor[NR]["x"]
+	if (sensor[NR]["y"] < minY) minY = sensor[NR]["y"]
+	if (nearbe[NR]["x"] < minX) minX = nearbe[NR]["x"]
+	if (nearbe[NR]["y"] < minY) minY = nearbe[NR]["y"]
 }
 
 END {
+	print minX " " maxX " " minY " " maxY
+	for (cx = minX; cx <= maxX; cx++) {
+		for (cy = minY; cy <= maxY; cy++) {
+			cave[cx][cy] = "."
+		}
+	}
+
+	for (s = 1; s <= length(sensor); s++) {
+		cave[sensor[s]["x"]][sensor[s]["y"]] = "S"
+		cave[nearbe[s]["x"]][nearbe[s]["y"]] = "B"
+		distance = getDistance(sensor[s]["x"], sensor[s]["y"], nearbe[s]["x"], nearbe[s]["y"])
+		markRow(sensor[s]["x"], sensor[s]["y"], distance)
+	}
 	
+	for (cx = minX; cx <= maxX; cx++) {
+		for (cy = minY; cy <= maxY; cy++) {
+			printf("%s", cave[cx][cy])
+		}
+		print ""
+	}
+
+	empty = 0
+	for (c = minX; c <= maxX; c++) {
+		if (cave[c][10] == "#" || 
+			cave[dx][dy] == "S" || 
+			cave[dx][dy] == "B") empty++
+	}
+	
+	print empty
+}
+
+function markRow(x, y, d) {
+	for (dy = (y - d); dy <= (y + d); dy++) {
+		for (dx = (x - (y - dy)); dx <= (x + (y - dy)); dx++) {
+			if (cave[dx][dy] == "S" || 
+				cave[dx][dy] == "B") continue
+				
+			cave[dx][dy] = "#"
+		}
+	}
+}
+
+function getDistance(sx, sy, dx, dy) {
+	dx = abs(sx - dx)
+	dy = abs(sy - dy)
+	return dx + dy
+}
+
+function abs(value) {
+	if (value < 0) return value * -1
+	return value
 }
