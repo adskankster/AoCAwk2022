@@ -20,54 +20,44 @@ BEGIN {
 }
 
 END {
-	#print minX " " maxX " " minY " " maxY
-	#for (cx = minX; cx <= maxX; cx++) {
-	#	for (cy = minY; cy <= maxY; cy++) {
-	#		cave[cx][cy] = 0
-	#	}
-	#}
+	print minX " " maxX " " minY " " maxY
 
 	for (s = 1; s <= length(sensor); s++) {
-		cave[sensor[s]["x"]][sensor[s]["y"]] = 1
-		cave[nearbe[s]["x"]][nearbe[s]["y"]] = 2
+		if ((sensor[s]["y"] > maxY) || (sensor[s]["y"] < minY)) continue
+		
+		if (sensor[s]["y"] == rowNo) row[sensor[s]["x"]] = "S"
+		if (nearbe[s]["y"] == rowNo) row[nearbe[s]["x"]] = "B"
 		
 		distance = getDistance(sensor[s]["x"], sensor[s]["y"], nearbe[s]["x"], nearbe[s]["y"])
 		markRow(sensor[s]["x"], sensor[s]["y"], distance)
 	}
-	
-	#for (cy = minY; cy <= maxY; cy++) {
-	#	for (cx = minX; cx <= maxX; cx++) {
-	#		printf("%s", cave[cx][cy])
-	#	}
-	#	print ""
-	#}
-
-	delete sensor
-	delete nearbe
 
 	empty = 0
-	for (c = minX; c <= maxX; c++) {
-		if (cave[c][10] == 3) empty++
-			#cave[c][10] == 1 || 
-			#cave[c][10] == 2) 
+	for (c in row) {
+		if (row[c] == "#") empty++
 	}
 	
 	print empty
 }
 
 function markRow(x, y, d) {
-	for (dy = (y - d); dy <= (y + d); dy++) {
-		if (dy < minY || dy > maxY) continue
+	
+	dx = 0
+	for (dy = y - d; dy <= y + d; dy++) {
+
+		if (dy == y) dx = d
 		
-		dd = (d - (y - dy))
-
-		for (dx = (x - dd); dx <= (x + dd); dx++) {
-			if (dx < minX || dx > maxX) continue
-
-			if (cave[dx][dy] == 1 || 
-				cave[dx][dy] == 2) continue
-				
-			cave[dx][dy] = 3
+		if (dy == rowNo) {
+			for (ax = x - dx; ax <= x + dx; ax++) {
+				if (row[ax] != "S" && 
+					row[ax] != "B") row[ax] = "#"
+			}
+		}
+		
+		if (dy < y) {
+			dx++
+		} else {
+			dx--
 		}
 	}
 }

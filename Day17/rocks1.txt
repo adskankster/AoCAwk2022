@@ -1,0 +1,116 @@
+BEGIN {
+	colmin = 1; colmax = 7
+	
+	for (c = colmin; c <= colmax; c++) {
+		column[c][0] = "@"
+	}
+}
+
+/^.+/ {
+	#jets = $0
+	jets = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
+}
+
+END {
+
+}
+
+function createRock(rockNo, rowNo, rock) {
+	
+	delete rock
+	
+	switch(rockNo % 5) {
+		case 1: # ####
+			rock[1]["x"] = 3
+			rock[1]["y"] = rowNo
+			rock[2]["x"] = 4
+			rock[2]["y"] = rowNo
+			rock[3]["x"] = 5
+			rock[3]["y"] = rowNo
+			rock[4]["x"] = 6
+			rock[4]["y"] = rowNo
+			break
+			
+		case 2:
+			rock[1]["x"] = 4
+			rock[1]["y"] = rowNo
+			rock[2]["x"] = 3
+			rock[2]["y"] = rowNo+1
+			rock[3]["x"] = 4
+			rock[3]["y"] = rowNo+1
+			rock[4]["x"] = 5
+			rock[4]["y"] = rowNo+1
+			rock[5]["x"] = 4
+			rock[5]["y"] = rowNo+2
+			break
+		case 3:
+			rock[1]["x"] = 3
+			rock[1]["y"] = rowNo
+			rock[2]["x"] = 4
+			rock[2]["y"] = rowNo
+			rock[3]["x"] = 5
+			rock[3]["y"] = rowNo
+			rock[4]["x"] = 5
+			rock[4]["y"] = rowNo+1
+			rock[5]["x"] = 5
+			rock[5]["y"] = rowNo+2
+			break
+		case 4:
+			rock[1]["x"] = 3
+			rock[1]["y"] = rowNo
+			rock[2]["x"] = 3
+			rock[2]["y"] = rowNo+1
+			rock[3]["x"] = 3
+			rock[3]["y"] = rowNo+2
+			rock[4]["x"] = 3
+			rock[4]["y"] = rowNo+3
+			break
+		case 0:
+			rock[1]["x"] = 3
+			rock[1]["y"] = rowNo
+			rock[2]["x"] = 4
+			rock[2]["y"] = rowNo
+			rock[3]["x"] = 3
+			rock[3]["y"] = rowNo+1
+			rock[4]["x"] = 4
+			rock[4]["y"] = rowNo+1
+			break
+	}
+}
+
+function moveRockLeft() { 
+	for (r = 1; r <= length(rock)) {
+		if (rock[r]["x"] == colmin) return
+	}
+	for (r = 1; r <= length(rock)) {
+		rock[r]["x"]--
+	}
+}
+
+function moveRockRight{} {
+	for (r = 1; r <= length(rock)) {
+		if (rock[r]["x"] == colmax) return
+	}
+	for (r = 1; r <= length(rock)) {
+		rock[r]["x"]++
+	}
+}
+
+function moveRockDown() {
+	for (r = 1; r <= length(rock)) {
+		below = rock[r]["y"] - 1
+		if (column[rock[r]["x"]][below] == "@") {
+			newRowNo = 0
+			for (r = 1; r <= length(rock)) {
+				column[rock[r]["x"]][rock[r]["y"]] == "@"
+				if ([rock[r]["y"] > newRowNo) newRowNo = [rock[r]["y"]
+			}
+			
+			return newRowNo
+		}
+	}
+	
+	for (r = 1; r <= length(rock)) {
+		rock[r]["y"]--
+	}
+}
