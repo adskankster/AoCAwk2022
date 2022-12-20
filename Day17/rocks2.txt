@@ -8,13 +8,12 @@ BEGIN {
 
 /^.+/ {
 	jets = $0
-	#jets = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
 }
 
 END {
-	row = 0; jetNo = 1
+	row = 0; jetNo = 1; rowBlock = 1
 	
-	for (rockNo = 1; rockNo <= 2022; rockNo++) {
+	for (rockNo = 1; rockNo <= 1000000000000; rockNo++) {
 		createRock(rockNo, row + 4, rock) 
 		
 		do {
@@ -30,6 +29,16 @@ END {
 			tmpRow = moveRockDown(rock, row)
 			
 		} while (tmpRow == 0)
+		
+		if (row >= ((rowBlock * 1000) + 100)) {
+			for (rb = (rowBlock -1) * 1000; rb < rowBlock * 1000; rb++) {
+				for (rbx = colmin; rbx <= colmax; rbx++) {
+					delete column[rbx][rb]
+				}
+			}
+			rowBlock++
+			print rockNo
+		}
 
 		row = tmpRow
 	}
