@@ -2,7 +2,7 @@ BEGIN {
 	colmin = 1; colmax = 7
 	
 	for (c = colmin; c <= colmax; c++) {
-		column[c][0] = "#"
+		column[c][0] = 1
 	}
 }
 
@@ -13,7 +13,7 @@ BEGIN {
 END {
 	row = 0; jetNo = 1; rowBlock = 1
 	
-	for (rockNo = 1; rockNo <= 10000000; rockNo++) {
+	for (rockNo = 1; rockNo <= 1000000; rockNo++) {
 		createRock(rockNo, row + 4, rock) 
 		
 		do {
@@ -37,6 +37,7 @@ END {
 				}
 			}
 			rowBlock++
+			if (rowBlock % 1000 == 0) print rockNo
 		}
 
 		row = tmpRow
@@ -123,7 +124,7 @@ function createRock(rockNo, rowNo, rock) {
 function moveRockLeft(rock) { 
 	for (r = 1; r <= length(rock); r++) {
 		if (rock[r]["x"] == colmin || 
-			column[rock[r]["x"] - 1][rock[r]["y"]] == "#") return
+			column[rock[r]["x"] - 1][rock[r]["y"]] == 1) return
 	}
 	for (r = 1; r <= length(rock); r++) {
 		rock[r]["x"]--
@@ -133,7 +134,7 @@ function moveRockLeft(rock) {
 function moveRockRight(rock) {
 	for (r = 1; r <= length(rock); r++) {
 		if (rock[r]["x"] == colmax || 
-			column[rock[r]["x"] + 1][rock[r]["y"]] == "#") return
+			column[rock[r]["x"] + 1][rock[r]["y"]] == 1) return
 	}
 	for (r = 1; r <= length(rock); r++) {
 		rock[r]["x"]++
@@ -143,10 +144,10 @@ function moveRockRight(rock) {
 function moveRockDown(rock, row) {
 	for (r = 1; r <= length(rock); r++) {
 
-		if (column[rock[r]["x"]][rock[r]["y"] - 1] == "#") {
+		if (column[rock[r]["x"]][rock[r]["y"] - 1] == 1) {
 			newRowNo = row
 			for (r2 in rock) {
-				column[rock[r2]["x"]][rock[r2]["y"]] = "#"
+				column[rock[r2]["x"]][rock[r2]["y"]] = 1
 				if (rock[r2]["y"] > newRowNo) newRowNo = rock[r2]["y"]
 			}
 			
