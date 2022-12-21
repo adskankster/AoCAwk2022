@@ -11,6 +11,9 @@ BEGIN {
 
 END {
 	for (l = 1; l <= length(list); l++) {
+	
+		print ""
+		print "*** process " l
 		
 		if (list[l]["value"] == 0) continue
 		
@@ -18,26 +21,49 @@ END {
 		{
 			new = list[l]["new"] + list[l]["value"]
 			
-			updated = 0
+			while (new > length(list)) {
+				new = length(list) - new
+			}
+
+			print list[l]["value"] ": " l "- " new 
+
 			for (n = 1; n <= length(list); n++) {
-				if (list[n]["new"] > l&& list[n] <= new) 
+				
+				if (n == l) continue
+				
+				if (list[n]["new"] >= l && list[n]["new"] <= new) 
 				{
 					list[n]["new"]--
-					if (++updated) == new) break
-					
 				}
+				print list[n]["value"] ": " n "- " list[n]["new"] 
 			}
+
 		} else {
 		
+			new = list[l]["new"] + list[l]["value"]
+			
+			while (new < 1) {
+				new = length(list) + new - 1
+			}
+			
+			print list[l]["value"] ": " l "- " new 
+
+			for (n = 1; n <= length(list); n++) {
+				
+				if (n == l) continue
+			
+				if (list[n]["new"] <= l && list[n]["new"] >= new) 
+				{
+					list[n]["new"]++
+				}
+				print list[n]["value"] ": " n "- " list[n]["new"]
+			}
 		}
-	
 		
-		if (new < 1) new = length(list) + new
-		if (new > l) new = 1 + length(list) - l
 		list[l]["new"] = new
 	}
 	
 	for (l = 1; l <= length(list); l++) {
-		printf("list[%i] -> list[%i]: %i\r\n", list[l]["old"], list[l]["new"], list[l]["value"])
+		printf("list[%i] -> list[%i]: %i\r\n", l, list[l]["new"], list[l]["value"])
 	}
 }
