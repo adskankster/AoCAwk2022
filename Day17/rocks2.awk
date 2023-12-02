@@ -13,7 +13,7 @@ BEGIN {
 END {
 	row = 0; jetNo = 1; rowBlock = 1
 	
-	for (rockNo = 1; rockNo <= 1000000; rockNo++) {
+	for (rockNo = 1; rockNo <= 1000000000000; rockNo++) {
 		createRock(rockNo, row + 4, rock) 
 		
 		do {
@@ -41,10 +41,10 @@ END {
 		}
 
 		row = tmpRow
-		if (rockNo % 1000 == 0) {
-			t = rockNo * 1.5
-			print  rockNo ": " row " - " t " - " row - t
-		}
+		#if (rockNo % 1000000 == 0) {
+		#	t = rockNo * 1.5
+		#	print  rockNo ": " row " - " t " - " row - t
+		#}
 	}
 	
 	#for (y = row + 4; y >= 0; y--) {

@@ -26,18 +26,30 @@ END {
 	for (x = minX+1; x < maxX; x++) {
 		for (y = minY+1; y < maxY; y++) {
 			isInt = 0
+			first = 0
+			last = 0
 			for (z = minZ; z <= maxZ; z++) {
 				if (isInt == 0 && lava[x][y][z] == "#") {
-					isInt = 1; first = z
+					isInt = 1 
+					continue
 				}
-				if (lava[x][y][z] == "#") last = z
+				if (isInt == 1 && first == 0 && lava[x][y][z] != "#") {
+					first = z
+					continue
+				}
+				if (isInt == 1 && first > 0 &&lava[x][y][z] == "#") {
+					last = z
+					break;
+				}
 			}
 			
-			for (z = first; z <= last; z++) {
-				if (lava[x][y][z] != "#") {
-					gap[++ig]["x"] = x
-					gap[ig]["y"] = y
-					gap[ig]["z"] = z
+			if (last > 0) {
+				for (z = first; z < last; z++) {
+					if (lava[x][y][z] != "#") {
+						gap[++ig]["x"] = x
+						gap[ig]["y"] = y
+						gap[ig]["z"] = z
+					}
 				}
 			}
 		}
@@ -58,8 +70,8 @@ END {
 	}
 	
 	internal = (total - covered)
-	printf ("%i - %i = %i\r\n", total, covered, internal)
-	printf ("%i - %i = %i", area, internal, (area - internal))
+	printf ("%i - %i = %i \n", total, covered, internal)
+	printf ("%i - %i = %i \n", area, internal, (area - internal))
 	
 }
 
@@ -73,7 +85,7 @@ function checkCovered(b, o) {
 	x = checkFace(b["y"], o["y"], b["z"], o["z"], b["x"], o["x"])
 	if (x > 0) return x
 	
-	#printf("%i,%i,%i vs %i,%i,%i = %i\r\n", b["x"], b["y"], b["z"], o["x"], o["y"], o["z"], x)
+	#printf("%i,%i,%i vs %i,%i,%i = %i\n", b["x"], b["y"], b["z"], o["x"], o["y"], o["z"], x)
 	
 	return 0
 }

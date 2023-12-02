@@ -29,11 +29,12 @@ END {
 			#print "right[" r "] = " right[r]
 			rightSubscr[rsi++] = r
 		}
+
+		#print curPair ": " length(leftSubscr) " vs " length(rightSubscr)
 		
 		wrong = 0
 		for (lsi = 1; lsi <= length(leftSubscr); lsi++) {
 		
-			print curPair ": " leftSubscr[lsi] "=" left[leftSubscr[lsi]]  " - " rightSubscr[lsi] "=" right[rightSubscr[lsi]]
 		
 			#print curPair ": " lsi " vs " length(rightSubscr)
 			if (lsi > length(rightSubscr)) {
@@ -45,6 +46,7 @@ END {
 				wrong = 1
 				break
 			}
+
 			
 			if (length(left[leftSubscr[lsi]]) == 0 && 
 				length(right[rightSubscr[lsi]]) > 0) {
@@ -52,10 +54,13 @@ END {
 			}
 		}
 		if (wrong == 1) {
+			print curPair " WRONG: " pairs[curPair][1]
+			print curPair "      : " pairs[curPair][2]
 			continue
 		}
 		
-		print "Correct pair - " curPair
+		print curPair " RIGHT: " pairs[curPair][1]
+		print curPair "      : " pairs[curPair][2]
 		correctOrderSum += curPair
 
 		delete leftSubscr
